@@ -50,7 +50,7 @@ public class Worker implements Runnable {
     private static final int MAX_ORDERS=5;
     
     public Worker(Properties props)
-                    throws SQLException, IOException {
+                    throws SQLException, IOException, IllegalArgumentException {
 
         this.props = props;
         this.random = new Random();
@@ -92,6 +92,11 @@ public class Worker implements Runnable {
         }
         
         loadREST = !get("restURL").isEmpty();
+
+        if (!writeFile && !loadDB && !loadREST) {
+            throw new IllegalArgumentException("No load instructions have been passed on. " +
+                    "Please specify either a REST URL, JDBC URL, TNS name, or file location.");
+        }
     }
     
     private String generateDate() {
