@@ -11,18 +11,9 @@ public class Coffeeshop {
 
     public static void main(String[] args) throws Exception {
 
-        for (String arg : args) {
-            if (arg.equalsIgnoreCase("--help") ||
-                    arg.equalsIgnoreCase("-h") ||
-                    arg.equalsIgnoreCase("-help")) {
-                printHelp();
-                System.exit(0);
-            }
-            // Unknown command
-            else {
-                printHelp();
-                System.exit(1);
-            }
+        if (args.length > 0) {
+            printHelp();
+            System.exit(0);
         }
 
         try {
