@@ -2,6 +2,7 @@ package com.gvenzl;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 
 public class Coffeeshop {
@@ -39,8 +40,15 @@ public class Coffeeshop {
 
     private void run() throws Exception {
 
+        ArrayList<Thread> threads = new ArrayList<>();
         for (int i=0; i < Integer.valueOf(props.getProperty("threads")); i++) {
-            new Thread(new Worker(props)).start();
+            Thread t = new Thread(new Worker(props));
+            t.start();
+            threads.add(t);
+        }
+
+        for (Thread t : threads) {
+            t.join();
         }
     }
 
