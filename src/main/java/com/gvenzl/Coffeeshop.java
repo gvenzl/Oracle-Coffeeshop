@@ -9,7 +9,7 @@ public class Coffeeshop {
 
     private final Properties props;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         if (args.length > 0) {
             printHelp();
@@ -19,14 +19,16 @@ public class Coffeeshop {
         try {
 			new Coffeeshop().run();
 		} catch (IOException e) {
-            System.out.println("'Coffeeshop.properties' file could not be found in working directory.");
-            System.out.println("Please provide the properties file and make sure it's readable.");
+            System.err.println("ERROR: 'coffeeshop.properties' file could not be found in working directory.");
+            System.err.println("Please provide the properties file and make sure it's readable.");
+        } catch (Exception e) {
+            System.err.println("ERROR: " + e.getMessage());
         }
     }
 
     public Coffeeshop() throws IOException {
         props = new Properties();
-        props.load(new FileInputStream("Coffeeshop.properties"));
+        props.load(new FileInputStream("coffeeshop.properties"));
     }
 
     private void run() throws Exception {
