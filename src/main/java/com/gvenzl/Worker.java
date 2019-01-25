@@ -76,6 +76,7 @@ public class Worker implements Runnable {
                 conn = CloudConnectionManager.getConnection(
                         new File(get("cloudCredentialsFile")),
                             get("username"), get("password"), url);
+                System.out.println("Connected to Cloud Database.");
             }
             else {
                 OracleDataSource ods = new OracleDataSource();
@@ -83,6 +84,7 @@ public class Worker implements Runnable {
 				ods.setPassword(get("password"));
                 ods.setURL("jdbc:oracle:thin:@" + url);
                 conn = ods.getConnection();
+                System.out.println("Connected to Oracle Database.");
             }
             conn.setAutoCommit(false);
             stmt = conn.prepareStatement(
@@ -131,18 +133,20 @@ public class Worker implements Runnable {
     private String generateOrders() {
         
         double salesTotal = 0.0;
-        String order = "\"order\": [";
         Coffee coffeeSale = new Coffee();
         
         // Get random number of orders
         int orders = new Random().nextInt(MAX_ORDERS) + 1;
-        
-        for (int i=0;i<orders;i++) {
+
+        StringBuilder orderBuilder = new StringBuilder("\"order\": [");
+        for (int i = 0; i<orders; i++) {
             Coffee.CoffeeEntry coffee = coffeeSale.getCoffee();
-            order = order + coffee.coffee + ",";
+            orderBuilder.append(coffee.coffee).append(",");
             salesTotal += coffee.salesAmount;
         }
-        
+
+        String order = orderBuilder.toString();
+
         // Round to 2 digits after the comma
         DecimalFormat df = new DecimalFormat("###.##");
         
@@ -219,6 +223,7 @@ public class Worker implements Runnable {
         } catch (SQLException e) {
             System.out.println("Error loading data into the database");
             System.out.println(e.getMessage());
+            stop=true;
         }
         
     }
@@ -260,10 +265,6 @@ public class Worker implements Runnable {
         } catch (Exception e) {
             System.out.println("Error on calling REST: " + e.getMessage());
         }
-    }
-    
-    void stop() {
-        stop=true;
     }
 
     private String get(String key) {
