@@ -8,8 +8,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -20,7 +23,7 @@ import java.util.zip.ZipFile;
 
 public class CloudConnectionManager {
 
-    public static Connection getConnection(File fUrl,String user,String password, String serviceName) throws IOException, SQLException{ 
+    public static Connection getConnection(File fUrl,String user,String password, String serviceName, String ) throws IOException, SQLException{
         Path tmpDir = Files.createTempDirectory("oracle_cloud_config");
     
         Path tmpZip = tmpDir.resolve("temp.zip");
@@ -38,7 +41,7 @@ public class CloudConnectionManager {
     
         String pathToWallet = tmpDir.toFile().getAbsolutePath();
     
-    
+
         System.setProperty ("oracle.net.tns_admin", pathToWallet);
     
         System.setProperty ("oracle.net.ssl_server_dn_match", "true");
@@ -85,4 +88,14 @@ public class CloudConnectionManager {
             throw new FileNotFoundException("Failed to delete file: " + f);
     }
 
+    private static void setProxy(String path, String proxy) {
+        Path file = Paths.get( ( path + File.separatorChar + "tnsnames.ora"));
+        Charset charset = StandardCharsets.UTF_8;
+
+        String[] proxy= proxyHostPort.split(":");
+
+        String content = new String(Files.readAllBytes(file), charset);
+        content = content.replaceAll("address\\=\\(protocol=tcps\\)", "address=(https_proxy="+proxy[0]+")(https_proxy_port="+(proxy.length==2?proxy[1]:"80")+")(protocol=tcps)");
+        Files.write(file, content.getBytes(charset));
+    }
 }

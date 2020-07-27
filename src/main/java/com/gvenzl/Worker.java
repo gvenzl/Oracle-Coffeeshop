@@ -217,7 +217,18 @@ public class Worker implements Runnable {
     private void loadDataIntoDB(String data) {
         try {
             batchSize = batchSize + 1;
-            stmt.setBlob(1, new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8)));
+
+            String dataType = get("tableColumnDataType");
+            if (dataType.equalsIgnoreCase("BLOB")) {
+                stmt.setBlob(1, new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8)));
+            }
+            else if (dataType.equalsIgnoreCase("CLOB")) {
+                stmt.setClob(1, new StringReader(data));
+            }
+            else {
+                stmt.setString(1, data);
+            }
+
             stmt.addBatch();
             if (batchSize == Integer.valueOf(get("batchSize"))) {
                 stmt.executeBatch();
